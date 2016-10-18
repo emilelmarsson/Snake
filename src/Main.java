@@ -1,7 +1,10 @@
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
+
 import static org.lwjgl.opengl.GL11.*;
+
+import java.util.Random;
 
 /*
  	Snake 2D
@@ -9,29 +12,24 @@ import static org.lwjgl.opengl.GL11.*;
 	Oktober 2016
  */
 
-public class Main {
-	// Konstanter för bredden och höjden på fönstret. 
-	// (final betyder att det är en konstant, för vi vill inte att bredden eller höjden på fönstret ska ändras.)
-	public static final int W_WIDTH = 800, W_HEIGHT = 800;
+public class Main{
 	// Nuvarande stadiet spelet är i. Till exempel main screen, och game.
 	public static State state;
 	// Spelbrädet.
 	public static Board board;
+	// Slumpgenerator
+	public static Random rng = new Random();
+	// Ormen
+	public static Snake snake;
+	// Äpplet
+	public static Apple apple;
+	
 	
 	public static void main(String args[]){
-		// Default game state
-		state = State.GAME;
-		
 		// Delar upp det i funktioner här så det blir mer läsbart.
 		createWindow();
 		
 		initialize();
-		
-		// Skapar en matris på skärmen så att vi kan rita på den. Du behöver inte förstå allt som händer här. I don't.
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		glOrtho(0, W_WIDTH, W_HEIGHT, 0, 1, -1);
-		glMatrixMode(GL_MODELVIEW);
 		
 		// Spelets huvudloop. "Så länge spelaren inte stängt fönstret, fortsätt köra."
 		while(!Display.isCloseRequested()){
@@ -46,8 +44,8 @@ public class Main {
 	public static void createWindow(){
 		try{
 			// Startar ett nytt fönster med den specifierade bredden och höjden.
-			Display.setDisplayMode(new DisplayMode(W_WIDTH, W_HEIGHT));
-			Display.setTitle("Snake");
+			Display.setDisplayMode(new DisplayMode(Board.WIDTH, Board.HEIGHT));
+			Display.setTitle(Board.TITLE);
 			// Skapar fönstret.
 			Display.create();
 		}catch(LWJGLException e){
@@ -58,19 +56,51 @@ public class Main {
 		}
 	}
 	
+	public static boolean isInvisible(){
+		return snake.isInvisible();
+	}
+	
+	public static void resetGame(){
+		state = State.GAME;
+		snake = new Snake();
+		apple = new Apple(snake);
+	}
+	
 	public static void initialize(){
-		// Laddar texturer i Texturesklassen.
+		resetGame();
+		
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		glOrtho(0, Board.WIDTH, Board.HEIGHT, 0, 1, -1);
+		glMatrixMode(GL_MODELVIEW);
+		
 		Textures.init();
 	}
 	
 	public static void render(){
 		// Rensa fönstret.
+		glLoadIdentity();
 		glClear(GL_COLOR_BUFFER_BIT);
+		glEnable(GL_TEXTURE_2D);
+		glEnable(GL_BLEND);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
+		
+		Textures.renderBackground();
+		
+		snake.render();
+		
+		apple.render();
+		
+		glDisable(GL_BLEND);
 	}
 	
 	public static void update(){
 		// Kollar efter input från spelaren. (Input är en klass vi skapat själva, inte inbyggd i LWJGL.)
 		Input.update();
+		
+		apple.update(snake);
+		snake.update();
 					
 		// Uppdaterar skärmen
 		Display.update();
