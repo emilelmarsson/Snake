@@ -1,3 +1,4 @@
+// En punkt vid en viss position. (Detta förenklar väldigt mycket då man kan får hälfen så många variabler att handskas att med då x och y-värdena sparas i ett objekt.
 public class Point{
 	private int x, y;
 	

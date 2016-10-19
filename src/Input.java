@@ -11,8 +11,22 @@ public class Input{
 	public static void update(){
 		// Kollar vilket stadium spelet är i just nu. Ifall vi är i home screen behöver vi inte kolla om spelaren rör sig.
 		if(Main.state == State.GAME){
-			LEFT = Keyboard.isKeyDown(Keyboard.KEY_LEFT) || Keyboard.isKeyDown(Keyboard.KEY_A);
-			RIGHT = Keyboard.isKeyDown(Keyboard.KEY_RIGHT) || Keyboard.isKeyDown(Keyboard.KEY_D);
+			/*LEFT = Keyboard.isKeyDown(Keyboard.KEY_LEFT) || Keyboard.isKeyDown(Keyboard.KEY_A);
+			RIGHT = Keyboard.isKeyDown(Keyboard.KEY_RIGHT) || Keyboard.isKeyDown(Keyboard.KEY_D);*/
+			
+			while(Keyboard.next()){
+				if(Keyboard.getEventKeyState()){
+					if(Keyboard.getEventKey() == Keyboard.KEY_A || Keyboard.getEventKey() == Keyboard.KEY_LEFT){
+						LEFT = true;
+					}else if(Keyboard.getEventKey() == Keyboard.KEY_D || Keyboard.getEventKey() == Keyboard.KEY_RIGHT)
+						RIGHT = true;
+				}else{
+					if(Keyboard.getEventKey() == Keyboard.KEY_A || Keyboard.getEventKey() == Keyboard.KEY_LEFT)
+						LEFT = false;
+					else if(RIGHT = Keyboard.getEventKey() == Keyboard.KEY_D || Keyboard.getEventKey() == Keyboard.KEY_RIGHT)
+						RIGHT = false;
+				}
+			}
 		}
 	}
 }

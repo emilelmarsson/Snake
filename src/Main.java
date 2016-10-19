@@ -17,7 +17,8 @@ public class Main{
 	public static State state;
 	// Spelbrädet.
 	public static Board board;
-	// Slumpgenerator
+	// Slumpgenerator (RNJesus)
+	// Används för att bestämma slumpmässig position på äpplet samt ormen.
 	public static Random rng = new Random();
 	// Ormen
 	public static Snake snake;
@@ -29,15 +30,19 @@ public class Main{
 		// Delar upp det i funktioner här så det blir mer läsbart.
 		createWindow();
 		
+		// Initialiserar alla variabler
 		initialize();
 		
 		// Spelets huvudloop. "Så länge spelaren inte stängt fönstret, fortsätt köra."
 		while(!Display.isCloseRequested()){
+			// Här sköts all rendering.
 			render();
 			
+			// Här uppdaterar vi spellogiken.
 			update();
 		}
 		
+		// Här förstör vi alla resurser.
 		destroy();
 	}
 	
@@ -61,6 +66,7 @@ public class Main{
 	}
 	
 	public static void resetGame(){
+		// Här initialiserar vi variabler. Denna funktion kallar vi på i början samt när vi omstartar spelet.
 		state = State.GAME;
 		snake = new Snake();
 		apple = new Apple(snake);
@@ -74,6 +80,7 @@ public class Main{
 		glOrtho(0, Board.WIDTH, Board.HEIGHT, 0, 1, -1);
 		glMatrixMode(GL_MODELVIEW);
 		
+		// Laddar texturer.
 		Textures.init();
 	}
 	
@@ -86,10 +93,13 @@ public class Main{
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
 		
+		// Renderar bakgrunden.
 		Textures.renderBackground();
 		
+		// Renderar ormen.
 		snake.render();
 		
+		// Renderar äpplet.
 		apple.render();
 		
 		glDisable(GL_BLEND);
@@ -99,6 +109,7 @@ public class Main{
 		// Kollar efter input från spelaren. (Input är en klass vi skapat själva, inte inbyggd i LWJGL.)
 		Input.update();
 		
+		// Uppdaterar ormen och äpplet.
 		apple.update(snake);
 		snake.update();
 					
