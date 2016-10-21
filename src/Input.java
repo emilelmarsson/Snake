@@ -4,6 +4,9 @@ import org.lwjgl.input.Keyboard;
 
 public class Input{
 	public static boolean LEFT = false, RIGHT = false;
+	public static boolean PRESSED = false;
+	
+	public static long before = -1000;
 	/*
 	 *  Kollar om spelaren rör på sig och sparar det i de ovanstående statiska variablerna som vi sen kan använda från Main.
 	 *  Vi kanske behöver ändra detta senare ifall vi introducerar flera spelare.
@@ -15,16 +18,26 @@ public class Input{
 			RIGHT = Keyboard.isKeyDown(Keyboard.KEY_RIGHT) || Keyboard.isKeyDown(Keyboard.KEY_D);*/
 			
 			while(Keyboard.next()){
-				if(Keyboard.getEventKeyState()){
-					if(Keyboard.getEventKey() == Keyboard.KEY_A || Keyboard.getEventKey() == Keyboard.KEY_LEFT){
-						LEFT = true;
-					}else if(Keyboard.getEventKey() == Keyboard.KEY_D || Keyboard.getEventKey() == Keyboard.KEY_RIGHT)
-						RIGHT = true;
-				}else{
-					if(Keyboard.getEventKey() == Keyboard.KEY_A || Keyboard.getEventKey() == Keyboard.KEY_LEFT)
-						LEFT = false;
-					else if(RIGHT = Keyboard.getEventKey() == Keyboard.KEY_D || Keyboard.getEventKey() == Keyboard.KEY_RIGHT)
-						RIGHT = false;
+				if (Keyboard.getEventKey() == Keyboard.KEY_A || Keyboard.getEventKey() == Keyboard.KEY_LEFT) {
+				    if (Keyboard.getEventKeyState()){
+				    	LEFT = true;
+				    	before = Main.snake.getTick();
+				    }else{
+				    	if(Main.snake.getTick() < before)
+				    		PRESSED = true;
+				        LEFT = false;
+				        before = -1000;
+				    }
+				}else if (Keyboard.getEventKey() == Keyboard.KEY_D || Keyboard.getEventKey() == Keyboard.KEY_RIGHT) {
+				    if (Keyboard.getEventKeyState()) {
+				        RIGHT = true;
+				        before = Main.snake.getTick();
+				    }else{
+				    	if(Main.snake.getTick() < before)
+				    		PRESSED = true;
+				        RIGHT = false;
+				        before = -1000;
+				    }
 				}
 			}
 		}

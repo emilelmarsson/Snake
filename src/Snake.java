@@ -37,7 +37,7 @@ public class Snake{
 		shouldTurn = 0;
 		
 		tick = new Timer(500, true);
-		decreaseTick = 50;
+		decreaseTick = 25;
 		minimumTick = 100;
 		
 		timerStarted = false;
@@ -57,7 +57,7 @@ public class Snake{
 		 * genereras på samma sätt. För att göra detta använder vi oss av standardklassen Random, som vi har en instans av
 		 * i Main, kallad rng.
 		 */
-		int randomX = 3 + Main.rng.nextInt(Board.TILES - 2 * 3), randomY = 3 + Main.rng.nextInt(Board.TILES - 2 * 3);
+		int randomX = Main.rng.nextInt(Board.TILES), randomY = Main.rng.nextInt(Board.TILES);
 		body.add(new SnakePart(new Point(randomX, randomY), Part.HEAD));
 		
 		// Riktningen på kroppen och svansen ska vara samma som huvudets riktning när man spawnar.
@@ -76,6 +76,14 @@ public class Snake{
 		
 		// Startar timer.
 		tick.start();
+	}
+	
+	public long getTick(){
+		return tick.getDifference() / 1000000;
+	}
+	
+	public long getDelay(){
+		return tick.getDelay();
 	}
 	
 	// Om ormen har dött så vill vi kolla om den ska renderas just nu eller inte. Detta görs för att vi ska kunna få ormen att blinka när den dör.
@@ -127,7 +135,7 @@ public class Snake{
 		 */
 		SnakePart tail = new SnakePart(body.get(body.size() - 1));
 		
-		// Här tar vi bort svansen.
+		// Här tar vi bort den långa ludna svansen.
 		body.remove(body.size() - 1);
 		
 		
@@ -181,14 +189,18 @@ public class Snake{
 			/* Om spelaren trycker på vänster eller höger piltangent så ska variabeln shouldTurn sättas til -1 eller 1.
 			 * Detta görs för att vi i nästa tick ska kunna kolla om spelaren ska röra sig eller inte.
 			 */
-			if(Input.LEFT || Input.RIGHT && tick.getDifference() > 25)
+			if(Input.LEFT || Input.RIGHT){
+				//System.out.println(tick.getDifference() / 1000000 + " av " + tick.getDelay());
 				shouldTurn = Input.LEFT ? -1 : 1;
+			}if(Input.PRESSED)
+				shouldTurn = 0;
 			
 			/* Om timern överskridit sin delay (som ursprungligen ligger på 500 millisekunder, as of now) så ska ormen röra på sig.
 			 * Hade vi inte haft denna begränsning hade ormen rört sig varje frame, och eftersom spelet körs i 60 fps så hade det varit
 			 * ungefär var 16:e millisekund, vilket är extremt snabbt.
 			 */
 			if(tick.isPastDelay()){	
+				Input.PRESSED = false;
 				// Om spelaren har begärt få svänga under föregående tick, så ska ormen svänga.
 				if(shouldTurn != 0){
 					turn(shouldTurn);

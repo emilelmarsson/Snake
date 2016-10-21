@@ -26,7 +26,7 @@ public class Textures{
 	public static void init(){
 		try{
 			// Laddar in bilden.
-			spriteSheet = ImageIO.read(new File("res/spriteSheet.png"));
+			spriteSheet = ImageIO.read(new File("res/spritesheet.png"));
 			// Bredden på en sprite.
 			SPRITES_WIDTH = spriteSheet.getWidth() / Tile.SIZE;
 			// Höjden.
