@@ -87,6 +87,7 @@ class Apple extends Element{
 		// Om huvudet är på samma position som äpplet, så äter ormen upp äpplet. Därmed växer ormen, och en ny position till äpplet måste genereras.
 		if(sX == p.getX() && sY == p.getY()){
 			s.grow();
+			Sound.playAppleCrunch();
 			generateRandomPosition(s);
 		}
 	}

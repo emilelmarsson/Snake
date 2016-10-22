@@ -7,6 +7,11 @@ public class Point{
 		this.y = y;
 	}
 	
+	public Point(Point p){
+		x = p.getX();
+		y = p.getY();
+	}
+	
 	public Point(Element p){
 		x = p.getX();
 		y = p.getY();

@@ -8,6 +8,9 @@ public class Snake{
 	// synkroniserade gentemot huvudet.
 	private ArrayList<SnakePart> moves;
 	
+	// En animation för tungan
+	private Animation tongue;
+	
 	// Ifall spelaren trycker på vänsterpiltangenten blir denna variabel satt till -1.
 	// Ifall spelaren trycker på högerpiltangenten blir denna variabel satt till 1.
 	private int shouldTurn;
@@ -19,16 +22,11 @@ public class Snake{
 	// Det minsta värdet som ticken kan vara. Med andra ord, det snabbaste ormen kan röra sig.
 	private final int minimumTick;
 
-	// Alla dessa variabler är för att reglera hur ormen blinkar när den dör. Som en simpel övergångsanimation.
-	private boolean timerStarted;
+	private Timer blinkTimer;
 	// Bestämmer hur mycket timern ska blinka på den bestämda tiden. Ökar vi dess värde blinkar det snabbare.
 	private final int blinkAmount;
-	// Hur lång en blinkning ska vara (i millisekunder).
-	private final int blinkTime;
 	// En räknare som håller koll på hur många gånger vi blinkat, med andra ord hur många gånger crashTime passerat blinkTime.
 	private int counter;
-	// Variabel som sparar tiden vid ett visst stadie. Används för att ta fram förflutna tiden.
-	private long crashTime;
 	// Är sann om ormen inte ska visas just nu. Alltså själva blinkningen.
 	private boolean blink;
 	
@@ -37,18 +35,25 @@ public class Snake{
 		shouldTurn = 0;
 		
 		tick = new Timer(500, true);
-		decreaseTick = 25;
-		minimumTick = 100;
+		decreaseTick = 20;
+		minimumTick = 150;
 		
-		timerStarted = false;
 		blinkAmount = 10;
-		blinkTime = 200;
+		blinkTimer = new Timer(200, true);
 		counter = 0;
-		crashTime = 0;
 		blink = false;
 		
 		body = new ArrayList<SnakePart>();
 		moves = new ArrayList<SnakePart>();
+		
+		// Lägger till bilderna till animationen.
+		tongue = new Animation();
+		// Första bilden. Dröjer en sekund innan vi går vidare till nästa.
+		tongue.addFrame(Textures.getSprite(0, 1), tick.getDelay());
+		// O.s.v.
+		tongue.addFrame(Textures.getSprite(1, 1), tick.getDelay());
+		tongue.addFrame(Textures.getSprite(0, 1), tick.getDelay());
+		tongue.addFrame(Textures.getSprite(2, 1), tick.getDelay());
 		
 		/*
 		 * Lägger till de första kroppsdelarna till ormen, alltså ett huvud, en kropp och en svans.
@@ -74,12 +79,14 @@ public class Snake{
 		body.add(new SnakePart(new Point(randomX - offset.getX(), randomY - offset.getY()), Part.BODY, direction));
 		body.add(new SnakePart(new Point(randomX - offset.getX() * 2, randomY - offset.getY() * 2), Part.TAIL, direction));
 		
+		// Startar tungans animation
+		tongue.start();
 		// Startar timer.
 		tick.start();
 	}
 	
 	public long getTick(){
-		return tick.getDifference() / 1000000;
+		return tick.getDifference();
 	}
 	
 	public long getDelay(){
@@ -121,6 +128,12 @@ public class Snake{
 		return body.get(0);
 	}
 	
+	// Ökar tungans hastighet.
+	private void increaseTongueVelocity(){
+		long time = tick.getDelay();
+		tongue.updateTimer(time);
+	}
+	
 	// Denna funktion ökar storleken på ormen, och kallas på när ormen ätit ett äpple.
 	public void grow(){
 		/* Här gör vi så att ormen åker snabbare, genom att minska ticket på timern. Ursprungligen ligger den på 500 ms, d.v.s. den kommer
@@ -130,6 +143,8 @@ public class Snake{
 		if(tick.getDelay() > minimumTick)
 			tick.setDelay(tick.getDelay() - decreaseTick);
 		
+		increaseTongueVelocity();
+		
 		/* Här hämtar vi svansen på ormen. Det kommer vara den sista kroppsdelen i listan så därför hämtar vi från  indexet "längden på listan minus 1".
 		 * Obs. att vi skapar ett nytt SnakePartobjekt. Detta görs för att vi inte vill få en referens till svansen, utan endast en kopia av svansen.
 		 */
@@ -137,7 +152,6 @@ public class Snake{
 		
 		// Här tar vi bort den långa ludna svansen.
 		body.remove(body.size() - 1);
-		
 		
 		Direction d = tail.getDirection();
 		Point offset = Directions.getOffset(d);
@@ -150,8 +164,19 @@ public class Snake{
 		body.add(tail);
 	}
 	
+	private void renderTongue(){
+		Textures.loadTexture(tongue.getCurrentImage());
+		Point point = new Point(getHead().getPoint());
+		Point offset = Directions.getOffset(getHead().getDirection());
+		point.setX(point.getX() + offset.getX());
+		point.setY(point.getY() + offset.getY());
+		point = Board.getPoint(point);
+		Textures.rotateAndRenderTexture(point, getHead().getDirection(), 0);
+	}
+	
 	// Rendera alla ormens delar.
 	public void render(){
+		renderTongue();
 		for(int i = 0; i < body.size(); i++){
 			body.get(i).render();
 		}
@@ -164,7 +189,7 @@ public class Snake{
 		for(int i = 1; i < body.size(); i++)
 			if(body.get(i).getX() == hX && body.get(i).getY() == hY){
 				// Om timern inte redan är startad, starta den.
-				if(!timerStarted)
+				if(!blinkTimer.isStarted())
 					startCrashTimer();
 				return true;
 			}
@@ -173,12 +198,11 @@ public class Snake{
 	
 	// Startar timern.
 	public void startCrashTimer(){
-		timerStarted = true;
-		// Sätter denna variabel till tiden i nanosekunder. Detta gör för att vi sedan ska kunna kolla skillnaden och därmed se hur mycket tid som passerat.
-		crashTime = System.nanoTime();
+		blinkTimer.start();
 		counter = 0;
 	}
 	
+	// Byter riktning på huvudet.
 	public void turn(int direction){
 		body.get(0).setDirection(direction == -1);
 	}
@@ -186,6 +210,10 @@ public class Snake{
 	public void update(){
 		// Så länge inte ormen har kraschat ska den röra på sig som vanligt.
 		if(!hasCrashed()){	
+			tongue.update();
+			
+			//System.out.println(tongue.getTime() + " av " + tongue.getDelay());
+			
 			/* Om spelaren trycker på vänster eller höger piltangent så ska variabeln shouldTurn sättas til -1 eller 1.
 			 * Detta görs för att vi i nästa tick ska kunna kolla om spelaren ska röra sig eller inte.
 			 */
@@ -229,20 +257,22 @@ public class Snake{
 		}else{
 			// Om ormen kraschat kommer vi hit.
 			// diff är passerad tid sedan senaste ticken. Till slut blir värdet större än tiden för en blinkning.
-			long diff = (System.nanoTime() - crashTime) / 1000000;
+			long diff = blinkTimer.getDifference();
 			
-			if(diff > blinkTime){
+			if(diff > blinkTimer.getDelay()){
 				// Då kommer vi hit.
 				if(counter < blinkAmount){
 					// Om antalet blinkningar är färre än det maximala startar vi om timern och kör samma process igen.
-					crashTime = System.nanoTime();
+					blinkTimer.start();
 					counter++;
 					// Dessutom sätter vi blink till negation av sig själv. Det vill säga om blink är true blir den false och vice versa.
 					// Detta är alltså själva alterneringen i blinkingen.
 					blink = !blink;
-				}else
+				}else{
+					System.out.println("Score: " + body.size());
 					// Om ormen har blinkat tillräckligt många gånger startar vi om spelet.
 					Main.resetGame();
+				}
 			}
 		}
 	}

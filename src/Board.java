@@ -1,6 +1,6 @@
 public class Board{
 	public static final String TITLE = "Snake";
-	public static final int WIDTH = 320, HEIGHT = 320;
+	public static final int WIDTH = 640, HEIGHT = 640;
 	// Antalet rutor på brädet.
 	public static int TILES = WIDTH / Tile.SIZE;
 	

@@ -39,7 +39,7 @@ public class Timer{
 	
 	// Returnerar skillnaden sedan föregående tick.
 	public long getDifference(){
-		return System.nanoTime() - lastTime;
+		return (System.nanoTime() - lastTime) / 1000000;
 	}
 	
 	// Startar (eller omstartar) timern.
@@ -70,9 +70,15 @@ public class Timer{
 	// Ändrar delayen
 	public void setDelay(long delay){
 		this.delay = delay;
-		if(repeats)
-			start();
-		else
-			stop();
+		if(started){
+			if(repeats)
+				start();
+			else
+				stop();
+		}
+	}
+	
+	public boolean isStarted(){
+		return started;
 	}
 }

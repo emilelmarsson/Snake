@@ -125,8 +125,7 @@ public class Textures{
 				// Positionen på mitten av texturen (i pixlar). Denna tar vi fram eftersom vi vill rotera texturen runt mitten.
 				int cX = p.getX() * Tile.SIZE + Tile.SIZE / 2;
 				int cY = p.getY() * Tile.SIZE + Tile.SIZE / 2;
-			
-				// Some linjär algebra for you. Jag förstår det inte heller, fick fan F på den kursen. Basically räknar den ut texturens position efter rotation med lite matrismultiplikation.
+				
 				glTranslatef(cX, cY, 0);
 				glRotatef(angle, 0, 0, 1);
 				glTranslatef(-cX, -cY, 0);

@@ -1,4 +1,5 @@
 import org.lwjgl.LWJGLException;
+import org.lwjgl.openal.AL;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 
@@ -32,6 +33,8 @@ public class Main{
 		
 		// Initialiserar alla variabler
 		initialize();
+		
+		Sound.playMusic();
 		
 		// Spelets huvudloop. "Så länge spelaren inte stängt fönstret, fortsätt köra."
 		while(!Display.isCloseRequested()){
@@ -73,15 +76,18 @@ public class Main{
 	}
 	
 	public static void initialize(){
+		// Laddar ljud
+		Sound.init();
+		
+		// Laddar texturer.
+		Textures.init();
+		
 		resetGame();
 		
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
 		glOrtho(0, Board.WIDTH, Board.HEIGHT, 0, 1, -1);
 		glMatrixMode(GL_MODELVIEW);
-		
-		// Laddar texturer.
-		Textures.init();
 	}
 	
 	public static void render(){
@@ -123,6 +129,7 @@ public class Main{
 	public static void destroy(){
 		// Förstör fönstret
 		Display.destroy();
+		AL.destroy();
 		System.exit(0);
 	}
 }
